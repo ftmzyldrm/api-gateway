@@ -22,13 +22,13 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
         ServerHttpRequest req = exchange.getRequest();
-        RequestPath path= req.getPath();
-        log.info("RequestPAth {}",path.toString());
-        URI url =req.getURI();
+        RequestPath path = req.getPath();
+        log.info("RequestPAth {}", path.toString());
+        URI url = req.getURI();
         String host = url.getHost();
-        log.info("host {}",host);
-        HttpMethod httpMethod= req.getMethod();
-        log.info("httpMethod {}",httpMethod.name());
+        log.info("host {}", host);
+        HttpMethod httpMethod = req.getMethod();
+        log.info("httpMethod {}", httpMethod.name());
 
         return chain.filter(exchange);
     }

@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.3.3.RELEASE'
+    //implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.3.3.RELEASE'
     compileOnly 'org.projectlombok:lombok'
     compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-gateway', version: '2.2.5.RELEASE'
 
@@ -28,15 +28,16 @@ dependencies {
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
-    // https://mvnrepository.com/artifact/redis.clients/jedis
-    compile group: 'redis.clients', name: 'jedis', version: '3.3.0'
-    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+
+    //compile group: 'redis.clients', name: 'jedis', version: '3.3.0'
+    compile 'org.redisson:redisson-spring-data-23:3.13.6'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.3'
-	// https://mvnrepository.com/artifact/com.github.vladimir-bukhtoyarov/bucket4j-core
+    // https://mvnrepository.com/artifact/com.github.vladimir-bukhtoyarov/bucket4j-core
     compile group: 'com.github.vladimir-bukhtoyarov', name: 'bucket4j-core', version: '4.10.0'
 
 
-	// https://mvnrepository.com/artifact/it.ozimov/embedded-redis
+
+    // https://mvnrepository.com/artifact/it.ozimov/embedded-redis
     testCompile group: 'it.ozimov', name: 'embedded-redis', version: '0.7.3', { exclude group: 'org.slf4j', module: 'slf4j-simple' }
 
 

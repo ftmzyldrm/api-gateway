@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class ApiKeys implements Serializable {
+    private String apiKeyHeader;
     private List<String> allowedMethods;
     private List<Bandwidth> rateLimitingBandWidths;
     private List<String> allowedIps;

@@ -14,10 +14,10 @@ public class ApisRepositoryTest {
     private RedisTemplate<String, Object> redisTemplate;
 
     @Test
-    public void get(){
-        Apis api = new Apis("myPath",true,true,"X-API-KEY");
-       // Apis api2 = new Apis("test2",false,true,"X-API-KEY");
-        redisTemplate.opsForHash().put("apis",api.getPath(),api);
+    public void get() {
+        Apis api = new Apis("myPathTest", true, true, "X-API-KEY");
+        // Apis api2 = new Apis("test2",false,true,"X-API-KEY");
+        redisTemplate.opsForHash().put("apis", api.getPath(), api);
         //final Apis user = (Apis) redisTemplate.opsForValue().get("apis");
     }
 

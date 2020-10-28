@@ -1,9 +1,6 @@
 package com.example.apigateway.repo;
 
 
-
-
-
 import com.example.apigateway.config.RedisProperties;
 import org.springframework.boot.test.context.TestConfiguration;
 import redis.embedded.RedisServer;
@@ -16,10 +13,10 @@ public class TestRedisConfiguration {
 
     private final RedisServer redisServer;
 
-    public TestRedisConfiguration(final  RedisProperties myRedisProperties) {
+    public TestRedisConfiguration(final RedisProperties myRedisProperties) {
         this.redisServer = new RedisServer(myRedisProperties.getRedisPort());
     }
-                //new RedisServer(6379);
+    //new RedisServer(6379);
 
 
     @PostConstruct

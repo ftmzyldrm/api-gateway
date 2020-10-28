@@ -31,7 +31,7 @@ public class CustomGlobalFilterTest {
 
     @Test
     public void shouldAllowThePublicRequest() {
-        MockServerHttpRequest request = MockServerHttpRequest.get("http://localhost/test" ).build();
+        MockServerHttpRequest request = MockServerHttpRequest.get("http://localhost/test").build();
         exchange = MockServerWebExchange.from(request);
         ArgumentCaptor<ServerWebExchange> captor = ArgumentCaptor.forClass(ServerWebExchange.class);
         when(chain.filter(captor.capture())).thenReturn(Mono.empty());

@@ -12,11 +12,12 @@ public class ApiRepositoryIntegrationTest {
 
     @Autowired
     private ApisRepository apisRepository;
+
     @Test
     public void shouldSaveApis_toRedis() {
-        Apis api = new Apis("myPath",true,true,"X-API-KEY");
+        Apis api = new Apis("myFinalPath", true, true, "X-API-KEY");
         apisRepository.save(api);
-        Apis saved= apisRepository.findById("myPath");
+        Apis saved = apisRepository.findById("myPath");
         assertNotNull(saved);
 
     }

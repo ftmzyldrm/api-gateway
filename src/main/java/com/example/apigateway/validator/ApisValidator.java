@@ -13,13 +13,13 @@ public class ApisValidator {
         this.apisRepository = apisRepository;
     }
 
-    public void insertApis(){
+    public void insertApis() {
         System.out.println("Apis print ");
-        Apis user =  new Apis("test",true,true,"X-API-KEY");
+        Apis user = new Apis("test", true, true, "X-API-KEY");
 
-       apisRepository.save(user);
-       Apis apis =  new Apis("test2",false,true,"X-API-KEY");
-       apisRepository.save(apis);
+        apisRepository.save(user);
+        Apis apis = new Apis("test2", false, true, "X-API-KEY");
+        apisRepository.save(apis);
 //       Apis getApis =apisRepository.findById("test");
 //       Map<String, Apis> apisMap=apisRepository.findAll();
 //        for (Map.Entry e:apisMap.entrySet()

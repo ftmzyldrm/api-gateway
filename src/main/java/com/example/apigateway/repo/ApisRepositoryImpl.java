@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Map;
 
 @Repository
-public class ApisRepositoryImpl implements ApisRepository{
+public class ApisRepositoryImpl implements ApisRepository {
     private RedisTemplate<String, Object> redisTemplate;
     private HashOperations hashOperations;
 
