@@ -6,10 +6,15 @@ import com.example.apigateway.model.ApiKeys;
 import com.example.apigateway.model.Apis;
 import com.example.apigateway.repo.ApiKeysRepository;
 import com.example.apigateway.repo.ApisRepository;
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.Bucket4j;
 import lombok.SneakyThrows;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+
+import java.time.Duration;
 
 @Component
 public class ApisValidator {
@@ -61,10 +66,13 @@ public class ApisValidator {
 
     }
 
-    public void checkRateLimiting(String path){
+    public   Bucket checkRateLimiting(){
 
-        ApiKeys apiKeys= apiKeysRepository.findById(path);
-        apiKeys.getRateLimitingBandWidths();
-
+        Bandwidth limit = Bandwidth.simple(3, Duration.ofMinutes(3));
+        Bucket bucket = Bucket.builder()
+               // Bucket4j.builder()
+                .addLimit(limit)
+                .build();
+        return bucket;
     }
 }

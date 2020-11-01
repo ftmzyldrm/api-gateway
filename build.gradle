@@ -33,12 +33,19 @@ dependencies {
     compile 'org.redisson:redisson-spring-data-23:3.13.6'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.3'
     // https://mvnrepository.com/artifact/com.github.vladimir-bukhtoyarov/bucket4j-core
-    compile group: 'com.github.vladimir-bukhtoyarov', name: 'bucket4j-core', version: '4.10.0'
+   // compile group: 'com.github.vladimir-bukhtoyarov', name: 'bucket4j-core', version: '4.10.0'
+
+    compile group: 'com.github.vladimir-bukhtoyarov', name: 'bucket4j-core', version: '5.0.0-beta.01-09-2020'
+
+    // https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
+    compile group: 'org.springframework.kafka', name: 'spring-kafka', version: '2.6.1'
 
 
 
     // https://mvnrepository.com/artifact/it.ozimov/embedded-redis
     testCompile group: 'it.ozimov', name: 'embedded-redis', version: '0.7.3', { exclude group: 'org.slf4j', module: 'slf4j-simple' }
+
+
 
 
 }
