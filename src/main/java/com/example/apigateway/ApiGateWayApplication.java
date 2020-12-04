@@ -1,5 +1,6 @@
 package com.example.apigateway;
 
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -15,9 +16,9 @@ public class ApiGateWayApplication {
                 // Add a simple re-route from: /get to: http://httpbin.org:80
                 // Add a simple "Hello:World" HTTP Header
                 .route(p -> p
-                        .path("/get") // intercept calls to the /get path
+                        .path("/**") // intercept calls to the /get path
                         .filters(f -> f.addRequestHeader("Hello", "World")) // add header
-                        .uri("http://httpbin.org:80")) // forward to httpbin
+                        .uri("no://op"))
                 .build();
     }
 

@@ -1,20 +1,22 @@
 package com.example.apigateway.config;
 
-
-import com.example.apigateway.model.ApiKeys;
 import io.github.bucket4j.distributed.proxy.ClientSideConfig;
 import io.github.bucket4j.distributed.proxy.generic.compare_and_swap.AbstractCompareAndSwapBasedBackend;
 import io.github.bucket4j.distributed.proxy.generic.compare_and_swap.CompareAndSwapBasedTransaction;
 import org.redisson.api.RMap;
 
-import java.sql.SQLException;
+
 import java.util.Optional;
 
 public class RMapBasedRedissonBackend extends AbstractCompareAndSwapBasedBackend<String> {
 
+    public RMap<String, byte[]> getBuckets() {
+        return buckets;
+    }
+
     private final RMap<String, byte[]> buckets;
 
-    public RMapBasedRedissonBackend(RMap<String, byte[]> buckets, ClientSideConfig clientSideConfig) throws SQLException {
+    public RMapBasedRedissonBackend(RMap<String, byte[]> buckets, ClientSideConfig clientSideConfig)  {
         super(clientSideConfig);
         this.buckets = buckets;
     }
