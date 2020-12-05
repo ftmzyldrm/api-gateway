@@ -43,6 +43,11 @@ public enum Error {
         public String getMessageParameters(Object... args){
             return MessageFormat.format(API_PATH_NOT_MATCHED.message,args);
         }
+    }, API_KEY_HEADER_NOT_FOUND(400,"Api key header not found" ) {
+        @Override
+        public String getMessageParameters(Object... args) {
+            return  MessageFormat.format(API_KEY_HEADER_NOT_FOUND.message,args);
+        }
     };
 
 

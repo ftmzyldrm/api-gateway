@@ -4,6 +4,7 @@ package com.example.apigateway.config;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.trace.http.HttpTrace;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -21,12 +22,12 @@ public class KafkaProducerConfig {
     private String kafkaServer;
 
     @Bean
-    public KafkaTemplate<String, String> kafkaTemplate() {
+    public KafkaTemplate<String, HttpTrace> kafkaTemplate() {
         return new KafkaTemplate<>(producerConfig());
     }
 
     @Bean
-    public ProducerFactory<String, String> producerConfig() {
+    public ProducerFactory<String, HttpTrace> producerConfig() {
         // TODO Auto-generated method stub
         Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServer);

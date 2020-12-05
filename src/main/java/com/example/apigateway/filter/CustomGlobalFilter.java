@@ -5,13 +5,11 @@ import com.example.apigateway.validator.ApisValidator;
 import io.github.bucket4j.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -30,8 +28,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     @Autowired
     RMapBasedRedissonBackend rMapBasedRedissonBackend;
 
-    @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+
 
     AtomicLong consumed = new AtomicLong(1);
     private final Bucket freeBucket = Bucket.builder()
@@ -41,15 +38,14 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
 
 
 
-    @Value("${kafka.topic.name}")
-    private String topicName;
+
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
         ServerHttpRequest req = exchange.getRequest();
         String apiKeyHeader= req.getHeaders().get("X-API-KEY").get(0);
-
+        apisValidator.checkApis(exchange);
         Bucket bucket= getBucketFromGrid("API-KEY");
         log.info(" new probe--> {}", bucket.getAvailableTokens());
         ConsumptionProbe probe= bucket.tryConsumeAndReturnRemaining(1);

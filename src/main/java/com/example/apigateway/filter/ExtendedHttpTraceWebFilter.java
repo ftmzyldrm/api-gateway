@@ -1,7 +1,6 @@
 package com.example.apigateway.filter;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.trace.http.HttpExchangeTracer;
 import org.springframework.boot.actuate.trace.http.HttpTrace;
@@ -36,18 +35,19 @@ public class ExtendedHttpTraceWebFilter extends HttpTraceWebFilter implements We
 
     private final Set<Include> includes;
 
-    @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+
+    private final KafkaTemplate<String, HttpTrace> kafkaTemplate;
 
     @Value("${kafka.topic.name}")
     private String topicName;
 
 
-    public ExtendedHttpTraceWebFilter(HttpTraceRepository repository, HttpExchangeTracer tracer, Set<Include> includes) {
+    public ExtendedHttpTraceWebFilter(HttpTraceRepository repository, HttpExchangeTracer tracer, Set<Include> includes,KafkaTemplate<String,HttpTrace> kafkaTemplate) {
         super(repository, tracer, includes);
         this.repository = repository;
         this.tracer = tracer;
         this.includes = includes;
+        this.kafkaTemplate= kafkaTemplate;
     }
 
     @Override
@@ -85,10 +85,10 @@ public class ExtendedHttpTraceWebFilter extends HttpTraceWebFilter implements We
             HttpTrace trace = this.tracer.receivedRequest(request);
             ExtendedTraceableServerHttpResponse response = new ExtendedTraceableServerHttpResponse(exchange);
             this.tracer.sendingResponse(trace, response, () -> principal, () -> getStartedSessionId(session));
-            kafkaTemplate.send(topicName,response.toString());
-            log.info("My request is->>{}",request.toString());
+            kafkaTemplate.send(topicName,trace);
+            log.info("My request is->>{}",trace.toString());
             log.info("My response is -->{}", response.toString());
-            kafkaTemplate.send("response_topic",response.toString());
+           // kafkaTemplate.send("response_topic",);
 
             this.repository.add(trace);
             return Mono.empty();

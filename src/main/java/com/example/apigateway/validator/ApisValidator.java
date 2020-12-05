@@ -13,13 +13,12 @@ import io.github.bucket4j.Refill;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -34,99 +33,103 @@ public class ApisValidator {
 
     public ApisValidator(PathRepository pathRepository, ApiKeyRepository apiKeyRepository) {
         this.pathRepository = pathRepository;
-        this.apiKeyRepository= apiKeyRepository;
+        this.apiKeyRepository = apiKeyRepository;
     }
-
 
 
     @SneakyThrows
     public boolean checkApis(ServerWebExchange exchange) {
-        ServerHttpRequest req = exchange.getRequest();
-        String apiKeyHeader=null;
-        if (exchange.getRequest().getHeaders().get("X-API-Key") != null) {
+        String apiKeyHeader = null;
+        if (!CollectionUtils.isEmpty(exchange.getRequest().getHeaders().get("X-API-Key"))) {
             apiKeyHeader = exchange.getRequest().getHeaders().get("X-API-Key").get(0);
         }
-
         if (StringUtils.isEmpty(apiKeyHeader)) {
-            exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
-            byte[] bytes = "Missing Header: X-API-Key".getBytes(StandardCharsets.UTF_8);
-            DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
-            return false;
+            throw new ValidateApiException(Error.API_KEY_HEADER_NOT_FOUND.getMessageParameters());
         }
-        String path = req.getPath().toString();
-        String host = req.getURI().getHost();
-        String method = req.getMethod().name();
-        Optional<ApiKey> apiKey= apiKeyRepository.findById(apiKeyHeader);
+        ApiKey apiKey = getApiKey(apiKeyHeader);
+        Path validatedPath = getValidatedPath(exchange, apiKey);
 
-       if(!apiKey.isPresent())
-           throw  new ValidateApiException(Error.API_IS_NOT_FOUND.getMessageParameters());
-       else {
-           if(!path.equals(apiKey.get().getPath())){
-               throw  new ValidateApiException(Error.API_PATH_NOT_MATCHED.getMessageParameters());
-           }
-           else {
-              Optional<Path> pathPlan= pathRepository.findById(path);
-              if(!pathPlan.isPresent())
-                  throw new ValidateApiException(Error.PATH_PLAN_NOT_FOUND.getMessageParameters(path));
-              else {
-                Path validPathPlan = pathPlan.get();
-                String planId= apiKey.get().getPlanId();
-                if( !validPathPlan.isActive())
-                    throw new ValidateApiException(Error.API_DISABLED.getMessageParameters(path));
-                  if(validPathPlan.getPlans().containsKey(planId)) { //PlanId control
-                      Plan plan = validPathPlan.getPlans().get(planId);
-                      if (!plan.getIpWhiteList().contains(host))
-                          throw new ValidateApiException(Error.IP_NOT_ALLOWED.getMessageParameters(req.getRemoteAddress()));
-                      if (plan.getIpBlackList().contains(host))
-                          throw new ValidateApiException(Error.IP_NOT_ALLOWED.getMessageParameters(req.getRemoteAddress()));
-                      if(!plan.getSupportedMethods().contains(method))
-                          throw new ValidateApiException(Error.METHOD_NOT_ALLOWED.getMessageParameters(method));
-                      if (validPathPlan.isHasPublicPlan()) {
-                          //whiteList control
-
-
-
-
-                          //Plan..getRemoteAddress()
-                      }
-                      if(!validPathPlan.isHasPublicPlan()){
-
-                          plan.getQuota();
-
-                      }
-
-
-                  }
-
-
-
-              }
-           }
-       }
-
+        validatePathPlan(exchange, validatedPath, apiKey);
         return true;
 
     }
 
-    private  Bucket getBucketFromGrid(String apiKey,Quota quota, RateLimiting rateLimiting){
-
-
-        Bucket   bucket = rMapBasedRedissonBackend.builder().buildProxy(apiKey, getConfigSupplier(apiKey,quota,rateLimiting));
-
-
-
-        return bucket;
-
+    private Path getValidatedPath(ServerWebExchange exchange, ApiKey apiKey) {
+        ServerHttpRequest req = exchange.getRequest();
+        String path = req.getPath().toString();
+        if (!path.equals(apiKey.getPath())) {
+            throw new ValidateApiException(Error.API_PATH_NOT_MATCHED.getMessageParameters());
+        } else {
+            return pathRepository.findById(path)
+                    .orElseThrow(() -> new ValidateApiException(Error.PATH_PLAN_NOT_FOUND.getMessageParameters(path)));
+        }
     }
-    private Supplier<BucketConfiguration> getConfigSupplier(String apiKey,Quota quota, RateLimiting rateLimiting) {
+
+    private void validatePathPlan(ServerWebExchange exchange, Path validPathPlan, ApiKey apiKey) {
+
+        ServerHttpRequest req = exchange.getRequest();
+        String path = req.getPath().toString();
+
+        if (!validPathPlan.isActive()) {
+            throw new ValidateApiException(Error.API_DISABLED.getMessageParameters(path));
+        }
+        validatePathPlans(validPathPlan, apiKey, req);
+    }
+
+    private void validatePathPlans(Path validPathPlan, ApiKey apiKey, ServerHttpRequest req) {
+
+        String planId = apiKey.getPlanId();
+        String host = req.getURI().getHost();
+        //TODO: null check
+        String method = req.getMethod().name();
+        if (validPathPlan.getPlans().containsKey(planId)) { //PlanId control
+            Plan plan = validPathPlan.getPlans().get(planId);
+            if (!plan.getIpWhiteList().contains(host))
+                throw new ValidateApiException(Error.IP_NOT_ALLOWED.getMessageParameters(req.getRemoteAddress()));
+            if (plan.getIpBlackList().contains(host))
+                throw new ValidateApiException(Error.IP_NOT_ALLOWED.getMessageParameters(req.getRemoteAddress()));
+            if (!plan.getSupportedMethods().contains(method))
+                throw new ValidateApiException(Error.METHOD_NOT_ALLOWED.getMessageParameters(method));
+            if (validPathPlan.isHasPublicPlan()) {
+                //TODO: new collection should be created if not exist
+            } else {
+
+                getBucketFromGrid(apiKey.getId(), plan);
+            }
+        }
+    }
+
+
+    private ApiKey getApiKey(String apiKeyHeader) {
+        return apiKeyRepository.findById(apiKeyHeader)
+                .orElseThrow(() -> new ValidateApiException(Error.API_IS_NOT_FOUND.getMessageParameters()));
+    }
+
+    private Optional<String> getApiKeyHeader(ServerWebExchange exchange) {
+        String apiKeyHeader = null;
+        if (!CollectionUtils.isEmpty(exchange.getRequest().getHeaders().get("X-API-Key"))) {
+            apiKeyHeader = exchange.getRequest().getHeaders().get("X-API-Key").get(0);
+        }
+        if (StringUtils.isEmpty(apiKeyHeader)) {
+            exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
+        }
+        return Optional.ofNullable(apiKeyHeader);
+    }
+
+    private Bucket getBucketFromGrid(String apiKey, Plan plan) {
+
+        return rMapBasedRedissonBackend.builder().buildProxy(apiKey, getConfigSupplier(apiKey, plan));
+    }
+
+    private Supplier<BucketConfiguration> getConfigSupplier(String apiKey, Plan plan) {
         return () -> {
             if (apiKey.startsWith("X")) {
                 // apisValidator.
                 return rMapBasedRedissonBackend.getProxyConfiguration(apiKey)
                         .isPresent() ? rMapBasedRedissonBackend.getProxyConfiguration(apiKey).get() : BucketConfiguration.builder()
                         .addLimit(
-                                Bandwidth.simple(quota.getMaxRequests(),Duration.ofMinutes(quota.getPeriod())))
-                        .addLimit(Bandwidth.simple(rateLimiting.getMaxRequests(),Duration.ofMinutes(rateLimiting.getPeriod())))
+                                Bandwidth.simple(plan.getQuota().getMaxRequests(), Duration.ofMinutes(plan.getQuota().getPeriod())))
+                        .addLimit(Bandwidth.simple(plan.getRateLimiting().getMaxRequests(), Duration.ofMinutes(plan.getRateLimiting().getPeriod())))
                         .build();
             }
             return BucketConfiguration.builder()
@@ -134,6 +137,7 @@ public class ApisValidator {
                             Bandwidth.classic(3, Refill.intervally(5, Duration.ofMinutes(1))))
                     .build();
         };
+
     }
 
 }
