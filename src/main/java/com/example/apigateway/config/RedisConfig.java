@@ -32,7 +32,7 @@ public class RedisConfig {
     }
 
 
-   // @Bean
+    // @Bean
     public JedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
         redisStandaloneConfiguration.setHostName(myRedisProperties.getRedisHost());
@@ -43,10 +43,9 @@ public class RedisConfig {
         JedisClientConfiguration.JedisClientConfigurationBuilder jedisClientConfiguration = JedisClientConfiguration.builder();
         jedisClientConfiguration.connectTimeout(Duration.ofSeconds(60));// 60s connection timeout
 
-        JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory(redisStandaloneConfiguration,
+        return new JedisConnectionFactory(redisStandaloneConfiguration,
                 jedisClientConfiguration.build());
 
-        return jedisConnectionFactory;
     }
 
     @Bean(destroyMethod = "shutdown")
@@ -57,6 +56,7 @@ public class RedisConfig {
 
         return Redisson.create(config);
     }
+
     @Bean
     public RedissonConnectionFactory redissonConnectionFactory() {
         return new RedissonConnectionFactory(redisson());
@@ -65,9 +65,9 @@ public class RedisConfig {
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {
-        final RedisTemplate<String, Object> redisTemplate = new RedisTemplate<String, Object>();
+        final RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redissonConnectionFactory());
-        Jackson2JsonRedisSerializer serializer = new Jackson2JsonRedisSerializer(Object.class);
+        Jackson2JsonRedisSerializer<?> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
@@ -78,15 +78,15 @@ public class RedisConfig {
         //redisTemplate.setKeySerializer(new StringRedisSerializer());
 
         //In case of Json mapping
-       // redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-       // redisTemplate.setHashValueSerializer(serializer);
+        // redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        // redisTemplate.setHashValueSerializer(serializer);
         //redisTemplate.afterPropertiesSet();
 
         return redisTemplate;
     }
 
     @Bean
-    public RMapBasedRedissonBackend  rMapBasedRedissonBackend(){
+    public RMapBasedRedissonBackend rMapBasedRedissonBackend() {
         RMap<String, byte[]> buckets = redisson().getMap("testBuckets");
         return new RMapBasedRedissonBackend(buckets, ClientSideConfig.getDefault());
     }

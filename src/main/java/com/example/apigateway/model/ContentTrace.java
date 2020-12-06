@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 public class ContentTrace implements Serializable {
 
-    protected HttpTrace httpTrace;
+    protected  HttpTrace httpTrace;
 
     public HttpTrace getHttpTrace() {
         return httpTrace;
