@@ -8,45 +8,50 @@ import java.text.MessageFormat;
 @Getter
 public enum Error {
 
-    API_DISABLED(1,"Api is disabled"){
+    API_DISABLED(1, "Api is disabled") {
         @Override
-        public String getMessageParameters(Object... args){
+        public String getMessageParameters(Object... args) {
             return API_DISABLED.message;
         }
     },
-    IP_NOT_ALLOWED(2, "IP is not allowed {0}"){
-        @Override
-        public String getMessageParameters(Object... args){
-            return MessageFormat.format(IP_NOT_ALLOWED.message,args);
-        }
-    },
-    METHOD_NOT_ALLOWED(3,"Method is not allowed {0}" ){
-        @Override
-        public String getMessageParameters(Object... args){
-            return MessageFormat.format(METHOD_NOT_ALLOWED.message,args);
-        }
-    },
-    API_IS_NOT_FOUND(4,"API is not found"){
-        @Override
-        public String getMessageParameters(Object... args){
-            return MessageFormat.format(API_IS_NOT_FOUND.message,args);
-        }
-    },
-    API_PATH_NOT_MATCHED(5,"API path is not matched"){
-        @Override
-        public String getMessageParameters(Object... args){
-            return MessageFormat.format(API_PATH_NOT_MATCHED.message,args);
-        }
-    },
-    PATH_PLAN_NOT_FOUND(6,"Path Plan is not found {0}" ){
-        @Override
-        public String getMessageParameters(Object... args){
-            return MessageFormat.format(API_PATH_NOT_MATCHED.message,args);
-        }
-    }, API_KEY_HEADER_NOT_FOUND(400,"Api key header not found" ) {
+    IP_NOT_ALLOWED(2, "IP is not allowed {0}") {
         @Override
         public String getMessageParameters(Object... args) {
-            return  MessageFormat.format(API_KEY_HEADER_NOT_FOUND.message,args);
+            return MessageFormat.format(IP_NOT_ALLOWED.message, args);
+        }
+    },
+    METHOD_NOT_ALLOWED(3, "Method is not allowed {0}") {
+        @Override
+        public String getMessageParameters(Object... args) {
+            return MessageFormat.format(METHOD_NOT_ALLOWED.message, args);
+        }
+    },
+    API_IS_NOT_FOUND(4, "API is not found") {
+        @Override
+        public String getMessageParameters(Object... args) {
+            return MessageFormat.format(API_IS_NOT_FOUND.message, args);
+        }
+    },
+    API_PATH_NOT_MATCHED(5, "API path is not matched") {
+        @Override
+        public String getMessageParameters(Object... args) {
+            return MessageFormat.format(API_PATH_NOT_MATCHED.message, args);
+        }
+    },
+    PATH_PLAN_NOT_FOUND(6, "Path Plan is not found {0}") {
+        @Override
+        public String getMessageParameters(Object... args) {
+            return MessageFormat.format(API_PATH_NOT_MATCHED.message, args);
+        }
+    }, API_KEY_HEADER_NOT_FOUND(400, "Api key header not found") {
+        @Override
+        public String getMessageParameters(Object... args) {
+            return MessageFormat.format(API_KEY_HEADER_NOT_FOUND.message, args);
+        }
+    }, PATH_NOT_FOUND(404, "Path is not found") {
+        @Override
+        public String getMessageParameters(Object... args) {
+            return MessageFormat.format(PATH_NOT_FOUND.message, args);
         }
     };
 

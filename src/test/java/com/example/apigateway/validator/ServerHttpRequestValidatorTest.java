@@ -11,7 +11,7 @@ import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 
 @ExtendWith(MockitoExtension.class)
-public class ApisValidatorTest {
+public class ServerHttpRequestValidatorTest {
 
     @Mock
     ApiKeyRepository apiKeysRepository;
@@ -20,11 +20,11 @@ public class ApisValidatorTest {
     PathRepository pathRepository;
 
     @InjectMocks
-    ApisValidator apisValidator;
+    ServerHttpRequestValidator serversHttpRequestValidator;
     MockServerWebExchange exchange;
     @BeforeEach
     void init(){
-        apisValidator = new ApisValidator(pathRepository,apiKeysRepository);
+        //serversHttpRequestValidator = new ServerHttpRequestValidator(apiKeysRepository,r);
         MockServerHttpRequest request = MockServerHttpRequest.get("http://localhost/test").build();
         exchange = MockServerWebExchange.from(request);
     }
